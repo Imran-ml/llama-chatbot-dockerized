@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #B0D30D;
+      --primary-color-darker: #8DAA0A;
+      --accent-color: #4A5568;
+      --text-on-primary: #1A202C;
+      --text-dark: #2D3748;
+      --text-light: #F7FAFC;
+      --text-placeholder: #A0AEC0;
+      --container-bg: #FFFFFF;
+      --messages-bg: #F7FAFC;
+      --user-message-bg: var(--primary-color);
+      --user-message-text: var(--text-on-primary);
+      --bot-message-bg: #E2E8F0;
+      --bot-message-text: var(--text-dark);
+      --input-bg: #FFFFFF;
+      --border-color: #CBD5E0;
+      --shadow-color-soft: rgba(0, 0, 0, 0.05);
+      --shadow-color-medium: rgba(0, 0, 0, 0.1);
+      --focus-ring-color: rgba(176, 211, 13, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #E0E7FF, #F0F4F8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: var(--text-dark);
+      padding: 20px;
+    }
+
+    #chatbox {
+      background: var(--container-bg);
+      width: 100%;
+      max-width: 750px;
+      height: 90vh;
+      max-height: 850px;
+      display: flex;
+      flex-direction: column;
+      border-radius: 28px;
+      box-shadow: 0 20px 50px var(--shadow-color-medium);
+      overflow: hidden;
+      transition: all 0.3s ease-in-out;
+    }
+
+    #header {
+      padding: 22px 28px;
+      background: var(--primary-color);
+      color: var(--text-on-primary);
+      font-size: 1.7em;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--primary-color-darker);
+      box-shadow: 0 4px 10px rgba(176, 211, 13, 0.2);
+    }
+
+    #header .llama-icon {
+        font-size: 1.5em;
+        transform: scaleX(-1);
+        display: inline-block;
+    }
+
+    #messages {
+      flex: 1;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+      background: var(--messages-bg);
+      scroll-behavior: smooth;
+    }
+
+    #messages::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    #messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #messages::-webkit-scrollbar-thumb {
+      background: #C0C0C0;
+      border-radius: 10px;
+      border: 2px solid var(--messages-bg);
+    }
+
+    #messages::-webkit-scrollbar-thumb:hover {
+      background: #A0A0A0;
+    }
+
+    .message-wrapper {
+        display: flex;
+        max-width: 80%;
+        opacity: 0;
+        transform: translateY(15px);
+        animation: fadeInUpMessage 0.4s ease forwards;
+    }
+
+    .message-wrapper.user { align-self: flex-end; flex-direction: row-reverse; }
+    .message-wrapper.bot { align-self: flex-start; }
+
+    @keyframes fadeInUpMessage {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9em;
+        margin-top: auto;
+        color: var(--text-placeholder);
+    }
+
+    .message-wrapper.user .avatar { margin-left: 12px; background-color: var(--primary-color-darker); color: var(--text-light); }
+    .message-wrapper.bot .avatar { margin-right: 12px; background-color: var(--accent-color); color: var(--text-light); }
+
+    .message {
+      padding: 14px 20px;
+      border-radius: 20px;
+      line-height: 1.65;
+      word-wrap: break-word;
+      box-shadow: 0 3px 8px var(--shadow-color-soft);
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    }
+
+    .message:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px var(--shadow-color-medium);
+    }
+
+    .message-wrapper.user .message {
+      background: var(--user-message-bg);
+      color: var(--user-message-text);
+      border-bottom-right-radius: 6px;
+    }
+
+    .message-wrapper.bot .message {
+      background: var(--bot-message-bg);
+      color: var(--bot-message-text);
+      border-bottom-left-radius: 6px;
+    }
+
+    .message-wrapper.bot .message.thinking span {
+      display: inline-block;
+      animation: bounceAlpha 1.4s infinite ease-in-out both;
+      font-size: 1.5em;
+      line-height: 1;
+    }
+
+    .message-wrapper.bot .message.thinking span:nth-child(1) { animation-delay: -0.32s; }
+    .message-wrapper.bot .message.thinking span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounceAlpha {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+      40% { transform: scale(1.0); opacity: 1; }
+    }
+
+    #input-area {
+      display: flex;
+      align-items: center;
+      padding: 18px 24px;
+      background: var(--container-bg);
+      border-top: 1px solid var(--border-color);
+      box-shadow: 0 -5px 15px var(--shadow-color-soft);
+    }
+
+    #prompt {
+      flex: 1;
+      padding: 14px 22px;
+      border: 1px solid var(--border-color);
+      border-radius: 28px;
+      font-size: 1.05em;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-dark);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    #prompt::placeholder {
+        color: var(--text-placeholder);
+    }
+
+    #prompt:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px var(--focus-ring-color);
+    }
+
+    button#send-button {
+      margin-left: 12px;
+      padding: 12px;
+      width: 50px;
+      height: 50px;
+      border: none;
+      background: var(--primary-color);
+      color: var(--text-on-primary);
+      font-size: 1.1em;
+      font-weight: 600;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.25s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button#send-button:hover {
+      background: var(--primary-color-darker);
+      transform: scale(1.05);
+    }
+
+    button#send-button:active {
+        transform: scale(0.95);
+    }
+
+    button#send-button svg {
+        width: 24px;
+        height: 24px;
+        fill: var(--text-on-primary);
+    }
+  </style>
+</head>
+<body>
+  <div id="chatbox">
+    <div id="header">
+        Chat Bot
+    </div>
+    <div id="messages">
+    </div>
+    <div id="input-area">
+      <input id="prompt" type="text" placeholder="Ask me anything..." />
+      <button id="send-button" onclick="sendPrompt()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    async function sendPrompt() {
+      const input = document.getElementById("prompt");
+      const messagesDiv = document.getElementById("messages");
+      const userPrompt = input.value.trim();
+      if (!userPrompt) return;
+
+      appendMessage(userPrompt, 'user');
+      input.value = "";
+
+      const botThinkingDiv = appendMessage('', 'bot', true);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+      try {
+        const response = await fetch("http://localhost:8000/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: userPrompt })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(`Server responded with status ${response.status}: ${errorData}`);
+        }
+        const data = await response.json();
+        updateBotMessage(botThinkingDiv, data.response || "No response received.");
+      } catch (err) {
+        updateBotMessage(botThinkingDiv, "Error: " + err.message);
+        console.error("Fetch error:", err);
+      }
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function createMessageWrapper(type) {
+        const wrapper = document.createElement("div");
+        wrapper.className = `message-wrapper ${type}`;
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = type === 'user' ? 'IZ' : 'Bot';
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message";
+
+        if (type === 'user') {
+            wrapper.appendChild(messageDiv);
+            wrapper.appendChild(avatar);
+        } else {
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(messageDiv);
+        }
+        return { wrapper, messageDiv };
+    }
+
+    function appendMessage(text, type, isThinking = false) {
+        const messagesDiv = document.getElementById("messages");
+        const { wrapper, messageDiv } = createMessageWrapper(type);
+
+        if (isThinking) {
+            messageDiv.classList.add("thinking");
+            messageDiv.innerHTML = `<span>.</span><span>.</span><span>.</span>`;
+        } else {
+            messageDiv.textContent = text;
+        }
+
+        messagesDiv.appendChild(wrapper);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        return messageDiv;
+    }
+
+    function updateBotMessage(botMessageDiv, newText) {
+        botMessageDiv.classList.remove("thinking");
+        botMessageDiv.innerHTML = '';
+        botMessageDiv.textContent = newText;
+    }
+
+    document.getElementById("prompt").addEventListener("keypress", function(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendPrompt();
+        }
+    });
+
+    window.onload = () => {
+      appendMessage("Hello! How can I help today?", 'bot');
+    };
+  </script>
+</body>
+</html>
