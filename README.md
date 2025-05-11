@@ -69,7 +69,7 @@ llama-chatbot-dockerized/
     Make sure you are in the `llama-chatbot-dockerized`.
 
 3.  **Build and run the application using Docker Compose:**
-    * Build the backend Docker image based on your `Dockerfile`.
+    * Build the backend Docker image based on `Dockerfile`.
     * Pull the `ollama/ollama` image and the `nginx:alpine` image.
     * Start all defined services (Ollama, backend, frontend).
     * The `ollama` service is configured to automatically pull the **Llama 3** model upon starting. This might take some time during the first run as the model is downloaded.
