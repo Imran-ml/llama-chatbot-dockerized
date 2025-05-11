@@ -13,7 +13,7 @@
 
 # Llama 3 Chatbot with Docker
 
-This project is a simple web-based chatbot powered by the **Llama 3** LLM model, running locally via Ollama and containerized using Docker. It features a Python FastAPI backend and a basic HTML/CSS/JavaScript frontend.
+Run LLM model Locally using Docker right inside your codebase (No GUI Needed!). In this project, I did not used the suporting GUI like Open WebUI or LM Studio or any other, so the purpose to use stand alone LLM models with ollama to give you the idea that how you can use it in your project/code instead of running through third party. Everything is containerized with Docker, so setup is clean and repeatable. Its just a fun side project so my connections can learn more about running models locally in their own projects. 
 
 ## Features
 
